@@ -7,8 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
@@ -31,7 +29,7 @@ public class RPCClient {
 	private Bootstrap bootstrap;
 	private EventLoopGroup group;
 	private MessageCollector collector;
-	private Channel channel;
+	private boolean started;
 	private boolean stopped;
 
 	private MessageRegistry registry = new MessageRegistry();
@@ -48,8 +46,9 @@ public class RPCClient {
 	}
 
 	public <T> RpcFuture<T> sendAsync(String type, Object payload) {
-		if (channel == null) {
+		if (!started) {
 			connect();
+			started = true;
 		}
 		String requestId = RequestId.next();
 		MessageOutput output = new MessageOutput(requestId, type, payload);
@@ -87,8 +86,7 @@ public class RPCClient {
 	}
 
 	public void connect() {
-		ChannelFuture future = bootstrap.connect(ip, port).syncUninterruptibly();
-		channel = future.channel();
+		bootstrap.connect(ip, port).syncUninterruptibly();
 	}
 
 	public void reconnect() {
@@ -110,9 +108,8 @@ public class RPCClient {
 
 	public void close() {
 		stopped = true;
-		if (channel != null)
-			channel.close();
-		group.shutdownGracefully();
+		collector.close();
+		group.shutdownGracefully(0, 5000, TimeUnit.SECONDS);
 	}
 
 }

@@ -87,7 +87,14 @@ public class MessageCollector extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-		
+
+	}
+
+	public void close() {
+		ChannelHandlerContext ctx = context;
+		if (ctx != null) {
+			ctx.close();
+		}
 	}
 
 }
