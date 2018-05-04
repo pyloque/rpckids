@@ -1,4 +1,4 @@
-package rpckids.demo;
+package rpckids.client;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;

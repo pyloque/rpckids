@@ -22,7 +22,6 @@ import rpckids.common.MessageEncoder;
 import rpckids.common.MessageOutput;
 import rpckids.common.MessageRegistry;
 import rpckids.common.RequestId;
-import rpckids.demo.RpcFuture;
 
 public class RPCClient {
 	private final static Logger LOG = LoggerFactory.getLogger(RPCClient.class);
@@ -111,9 +110,9 @@ public class RPCClient {
 
 	public void close() {
 		stopped = true;
-		group.shutdownGracefully();
 		if (channel != null)
 			channel.close();
+		group.shutdownGracefully();
 	}
 
 }

@@ -13,7 +13,6 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import rpckids.common.MessageInput;
 import rpckids.common.MessageOutput;
 import rpckids.common.MessageRegistry;
-import rpckids.demo.RpcFuture;
 
 @Sharable
 public class MessageCollector extends ChannelInboundHandlerAdapter {
