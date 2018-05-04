@@ -53,7 +53,7 @@ public class RPCClient {
 			connect();
 		}
 		String requestId = RequestId.next();
-		MessageOutput output = new MessageOutput(type, requestId, payload);
+		MessageOutput output = new MessageOutput(requestId, type, payload);
 		return collector.send(output);
 	}
 
@@ -112,7 +112,8 @@ public class RPCClient {
 	public void close() {
 		stopped = true;
 		group.shutdownGracefully();
-		channel.close();
+		if (channel != null)
+			channel.close();
 	}
 
 }

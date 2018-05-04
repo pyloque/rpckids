@@ -1,6 +1,7 @@
 package rpckids.demo;
 
 import rpckids.client.RPCClient;
+import rpckids.client.RPCException;
 
 public class DemoClient {
 
@@ -19,15 +20,25 @@ public class DemoClient {
 		return (ExpResponse) client.send("exp", new ExpRequest(base, exp));
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 		RPCClient client = new RPCClient("localhost", 8888);
 		DemoClient demo = new DemoClient(client);
-		for (int i = 0; i < 20; i++) {
-			System.out.printf("fib(%d) = %d\n", i, demo.fib(i));
+		for (int i = 0; i < 10; i++) {
+			try {
+				System.out.printf("fib(%d) = %d\n", i, demo.fib(i));
+				Thread.sleep(1000);
+			} catch (RPCException e) {
+				i--; // retry
+			}
 		}
-		for (int i = 0; i < 20; i++) {
-			ExpResponse res = demo.exp(2, i);
-			System.out.printf("exp2(%d) = %d cost=%dns\n", i, res.getValue(), res.getCostInNanos());
+		for (int i = 0; i < 10; i++) {
+			try {
+				ExpResponse res = demo.exp(2, i);
+				Thread.sleep(1000);
+				System.out.printf("exp2(%d) = %d cost=%dns\n", i, res.getValue(), res.getCostInNanos());
+			} catch (RPCException e) {
+				i--; // retry
+			}
 		}
 		client.close();
 	}
