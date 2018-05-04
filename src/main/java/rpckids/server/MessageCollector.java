@@ -8,6 +8,9 @@ import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -18,6 +21,8 @@ import rpckids.common.MessageRegistry;
 
 @Sharable
 public class MessageCollector extends ChannelInboundHandlerAdapter {
+
+	private final static Logger LOG = LoggerFactory.getLogger(MessageCollector.class);
 
 	private ThreadPoolExecutor executor;
 	private MessageHandlers handlers;
@@ -54,18 +59,17 @@ public class MessageCollector extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		System.out.println("connection comes");
+		LOG.debug("connection comes");
 	}
 
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		System.out.println("connection leaves");
+		LOG.debug("connection leaves");
 	}
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		if (msg instanceof MessageInput) {
-			System.out.println("read a message");
 			this.executor.execute(() -> {
 				this.handleMessage(ctx, (MessageInput) msg);
 			});
@@ -91,8 +95,7 @@ public class MessageCollector extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-		System.out.println("connection error");
-		cause.printStackTrace();
+		LOG.warn("connection error", cause);
 	}
 
 }

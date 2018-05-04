@@ -1,5 +1,8 @@
 package rpckids.server;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -17,6 +20,8 @@ import rpckids.common.MessageHandlers;
 import rpckids.common.MessageRegistry;
 
 public class RPCServer {
+
+	private final static Logger LOG = LoggerFactory.getLogger(RPCServer.class);
 
 	private String ip;
 	private int port;
@@ -66,7 +71,7 @@ public class RPCServer {
 		bootstrap.option(ChannelOption.SO_BACKLOG, 100).option(ChannelOption.SO_REUSEADDR, true)
 				.option(ChannelOption.TCP_NODELAY, true).childOption(ChannelOption.SO_KEEPALIVE, true);
 		serverChannel = bootstrap.bind(this.ip, this.port).channel();
-		System.out.printf("server started @ %s:%d\n", ip, port);
+		LOG.warn("server started @ {}:{}\n", ip, port);
 	}
 
 	public void stop() {
