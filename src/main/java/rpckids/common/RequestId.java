@@ -1,4 +1,4 @@
-package rpckids.client;
+package rpckids.common;
 
 import java.util.UUID;
 

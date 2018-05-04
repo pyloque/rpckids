@@ -1,4 +1,4 @@
-package rpckids.server;
+package rpckids.common;
 
 import java.util.List;
 
@@ -6,7 +6,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.ReplayingDecoder;
-import rpckids.common.Charsets;
 
 public class MessageDecoder extends ReplayingDecoder<MessageInput> {
 

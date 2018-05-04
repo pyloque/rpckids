@@ -10,6 +10,11 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import rpckids.common.IMessageHandler;
+import rpckids.common.MessageDecoder;
+import rpckids.common.MessageEncoder;
+import rpckids.common.MessageHandlers;
+import rpckids.common.MessageRegistry;
 
 public class RPCServer {
 
@@ -17,6 +22,12 @@ public class RPCServer {
 	private int port;
 	private int ioThreads;
 	private int workerThreads;
+	private MessageHandlers handlers = new MessageHandlers();
+	private MessageRegistry registry = new MessageRegistry();
+
+	{
+		handlers.defaultHandler(new DefaultHandler());
+	}
 
 	public RPCServer(String ip, int port, int ioThreads, int workerThreads) {
 		this.ip = ip;
@@ -31,8 +42,8 @@ public class RPCServer {
 	private Channel serverChannel;
 
 	public RPCServer service(String type, Class<?> reqClass, IMessageHandler<?> handler) {
-		MessageRegistry.register(type, reqClass);
-		MessageHandlers.register(type, handler);
+		registry.register(type, reqClass);
+		handlers.register(type, handler);
 		return this;
 	}
 
@@ -40,7 +51,7 @@ public class RPCServer {
 		bootstrap = new ServerBootstrap();
 		group = new NioEventLoopGroup(ioThreads);
 		bootstrap.group(group);
-		collector = new MessageCollector(workerThreads);
+		collector = new MessageCollector(handlers, registry, workerThreads);
 		MessageEncoder encoder = new MessageEncoder();
 		bootstrap.channel(NioServerSocketChannel.class).childHandler(new ChannelInitializer<SocketChannel>() {
 			@Override

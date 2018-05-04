@@ -4,20 +4,26 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.ChannelHandler.Sharable;
+import rpckids.common.IMessageHandler;
+import rpckids.common.MessageHandlers;
+import rpckids.common.MessageInput;
+import rpckids.common.MessageRegistry;
 
 @Sharable
 public class MessageCollector extends ChannelInboundHandlerAdapter {
 
 	private ThreadPoolExecutor executor;
+	private MessageHandlers handlers;
+	private MessageRegistry registry;
 
-	public MessageCollector(int workerThreads) {
+	public MessageCollector(MessageHandlers handlers, MessageRegistry registry, int workerThreads) {
 		BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(1000);
 		ThreadFactory factory = new ThreadFactory() {
 
@@ -33,6 +39,8 @@ public class MessageCollector extends ChannelInboundHandlerAdapter {
 		};
 		this.executor = new ThreadPoolExecutor(1, workerThreads, 30, TimeUnit.SECONDS, queue, factory,
 				new CallerRunsPolicy());
+		this.handlers = handlers;
+		this.registry = registry;
 	}
 
 	public void closeGracefully() {
@@ -52,7 +60,6 @@ public class MessageCollector extends ChannelInboundHandlerAdapter {
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		System.out.println("connection leaves");
-		ctx.close();
 	}
 
 	@Override
@@ -67,18 +74,18 @@ public class MessageCollector extends ChannelInboundHandlerAdapter {
 
 	private void handleMessage(ChannelHandlerContext ctx, MessageInput input) {
 		// 业务逻辑在这里
-		Class<?> clazz = MessageRegistry.get(input.getType());
+		Class<?> clazz = registry.get(input.getType());
 		if (clazz == null) {
-			MessageHandlers.defaultHandler.handle(ctx, input.getRequestId(), input);
+			handlers.defaultHandler().handle(ctx, input.getRequestId(), input);
 			return;
 		}
 		Object o = input.getPayload(clazz);
 		@SuppressWarnings("unchecked")
-		IMessageHandler<Object> handler = (IMessageHandler<Object>) MessageHandlers.get(input.getType());
+		IMessageHandler<Object> handler = (IMessageHandler<Object>) handlers.get(input.getType());
 		if (handler != null) {
 			handler.handle(ctx, input.getRequestId(), o);
 		} else {
-			MessageHandlers.defaultHandler.handle(ctx, input.getRequestId(), input);
+			handlers.defaultHandler().handle(ctx, input.getRequestId(), input);
 		}
 	}
 
@@ -86,7 +93,6 @@ public class MessageCollector extends ChannelInboundHandlerAdapter {
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 		System.out.println("connection error");
 		cause.printStackTrace();
-		ctx.close();
 	}
 
 }

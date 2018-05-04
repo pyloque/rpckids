@@ -29,6 +29,7 @@ public class DemoClient {
 			ExpResponse res = demo.exp(2, i);
 			System.out.printf("exp2(%d) = %d cost=%dns\n", i, res.getValue(), res.getCostInNanos());
 		}
+		client.close();
 	}
 
 }

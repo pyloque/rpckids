@@ -1,4 +1,4 @@
-package rpckids.server;
+package rpckids.common;
 
 public class MessageOutput {
 

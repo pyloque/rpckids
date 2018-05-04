@@ -1,4 +1,4 @@
-package rpckids.server;
+package rpckids.common;
 
 import java.util.List;
 
@@ -9,7 +9,6 @@ import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageEncoder;
-import rpckids.common.Charsets;
 
 @Sharable
 public class MessageEncoder extends MessageToMessageEncoder<MessageOutput> {
