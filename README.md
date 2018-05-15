@@ -1,6 +1,13 @@
 rpckids
 --
-rpc framework based on netty for kids
+RPC framework based on netty for kids
+
+Feature
+--
+1. Extremely lightweight compared with other rpc frameworks.
+2. Extremely easy to use, Extermly low cost for learning.
+3. Extremely easy to understand, With approximately 800 lines of code.
+4. Base on JSON protocol
 
 Hello Server
 --
